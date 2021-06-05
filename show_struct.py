@@ -21,7 +21,7 @@ class Outliner(object):
         if isinstance(data, dict):
             if not data:
                 self.values_for_path[p]['(Empty hash)'] = True
-            for k, v in data.iteritems():
+            for k, v in data.items():
                 if "." in k or " " in k:
                     newpath = '["' + k + '"]'
                     if len(path) == 0:
