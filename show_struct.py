@@ -21,8 +21,8 @@ class Outliner(object):
         if isinstance(data, dict):
             if not data:
                 self.values_for_path[p]['(Empty hash)'] = True
-            for k, v in data.iteritems():
-                if "." in k or " " in k:
+            for k, v in data.items():
+                if "." in k or " " in k or "/" in k:
                     newpath = '["' + k + '"]'
                     if len(path) == 0:
                         newpath = '.' + newpath
@@ -54,13 +54,28 @@ class Outliner(object):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser('Show structure of give JSON file')
-    parser.add_argument('file', metavar='FILE', default='-', nargs='?',
-                        help="The filename to read. Use '-' to read stdin - defaults to '-'")
+    parser = argparse.ArgumentParser(
+        prog='show_struct.py', description='Show structure of JSON file')
+    parser.add_argument(
+        'file', default='-', nargs='?',
+        help="The filename to read or '-' to read from stdin.  Defaults to '-'")
     args = parser.parse_args()
 
     if args.file == "-":
-        data = json.loads(sys.stdin.read())
+        if sys.stdin.isatty():
+            parser.print_help()
+            parser.exit(1)
+            # parser.error("Must provide either a filename or pipe to stdin")
+
+        try:
+            rawdata = sys.stdin.read()
+            if len(rawdata) == 1:
+                parser.error("Stdin cannot be empty if no file specified")
+
+            data = json.loads(rawdata)
+        except Exception as ex:
+            parser.error(ex)
+
     else:
         with open(args.file) as f:
             data = json.loads(f.read())
